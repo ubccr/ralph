@@ -36,39 +36,42 @@ class SparqlClientTest extends \Codeception\Test\Unit
     {
         Stub::update($this->guzzle, [
             'request' => Stub::once(function ($method, $uri, array $options) {
-                $this->assertEquals($method, 'GET');
-                $this->assertEquals($uri, 'http://localhost/sparql');
-                $this->assertEquals($options, [
-                    'query' => [
-                        'query' => 'PREFIX f: <fake> SELECT ?fake WHERE { }',
-                        'format' => 'json'
-                    ]
-                ]);
+                $this->assertEquals(
+                    $options['query']['query'],
+                    'PREFIX fs: <http://fake/schema> SELECT * WHERE { ?p a ?o }'
+                );
 
                 return Stub::makeEmpty(ResponseInterface::class, [
                     'getBody' => function () {
-                        return '{"name":"fake"}';
+                        return '{"type":"value"}';
                     }
                 ]);
             })
         ]);
         $client = $this->client
             ->withEndpoint('http://localhost/sparql')
-            ->withPrefix('f', 'fake');
+            ->withPrefix('fs', 'http://fake/schema');
         $query = "
-            SELECT ?fake
+            SELECT *
             WHERE
             {
+                ?p a ?o
             }
         ";
         $result = $client->query($query);
 
-        $this->assertEquals($result, ['name' => 'fake']);
+        $this->assertEquals($result, ['type' => 'value']);
     } // testQuery()
 
-    public function testInvalidUri()
+    public function testInvalidEndpointUri()
     {
         $this->expectException(InvalidUriException::class);
         $this->client->withEndpoint('invalid');
+    } // testInvalidUri()
+
+    public function testInvalidNamespaceUri()
+    {
+        $this->expectException(InvalidUriException::class);
+        $this->client->withPrefix('i', 'invalid');
     } // testInvalidUri()
 } // class SparqlClientTest
