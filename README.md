@@ -1,8 +1,8 @@
-# sparql-client
+# Ralph
 
-A simple SPARQL client built on top of Guzzle.
+**R**DF **A**bstraction **L**ayer for **PH**P: A simple SPARQL client built on top of Guzzle.
 
-Look at the `list` target in the Makefile for how to use `make` to manage the project.
+Take a look at the `list` target in the Makefile for how to use `make` to manage the project.
 
 ### Example of a query against the British Museum SPARQL endpoint:
 
