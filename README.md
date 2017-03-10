@@ -7,17 +7,19 @@ Look at the `list` target in the Makefile for how to use `make` to manage the pr
 ### Example of a query against the British Museum SPARQL endpoint:
 
 ```
-$guzzle = GuzzleHttp\Client();
+$guzzle = new GuzzleHttp\Client();
 $client = new CCR\Sparql\SparqlClient($guzzle);
 $client = $client
-    ->withBaseUri('http://collection.britishmuseum.org/')
-    ->withPrefix('bmo', 'http://collection.britishmuseum.org/id/object/');
+    ->withEndpoint('http://collection.britishmuseum.org/sparql')
+    ->withPrefix('crm', 'http://erlangen-crm.org/current/')
+    ->withPrefix('fts', 'http://www.ontotext.com/owlim/fts#');
 $result = $client->query('
-    SELECT ?p ?o
-    WHERE
+    SELECT DISTINCT ?obj
     {
-        bmo:PPA82633 ?p ?o .
+        ?obj crm:P102_has_title ?title .
+        ?title rdfs:label ?label .
+        FILTER(STR(?label) = "Hoa Hakananai\'a")
     }
 ');
-echo $result;
+print_r($result);
 ```

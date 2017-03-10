@@ -18,10 +18,10 @@ class SparqlClient
     private $client;
 
     /**
-     * @var string $baseUri The base URI for the SPARQL server.
+     * @var string $endpoint The endpoint for the SPARQL server.
      */
 
-    private $baseUri = '';
+    private $endpoint = '';
 
     /**
      * @var array $prefixes The prefixes to prepend to each request.
@@ -35,26 +35,26 @@ class SparqlClient
     } // __construct()
 
     /**
-     * Sets the base URI for connecting to the SPARQL server.
+     * Sets the endpoint for connecting to the SPARQL server.
      *
-     * @param string $uri The base URI to set. Must conform to RFC 3986.
+     * @param string $uri The endpoint to set. Must conform to RFC 3986.
      *
      * @return SparqlClient The clone of this client with the base URI set.
      *
-     * @throws DomainException If the URI is not a valid RFC 3986 URI.
+     * @throws InvalidUriException If the endpoint is not a valid RFC 3986 URI.
      */
 
-    public function withBaseUri($uri)
+    public function withEndpoint($endpoint)
     {
-        if ( filter_var($uri, FILTER_VALIDATE_URL) === false ) {
-            throw new InvalidUriException($uri);
+        if ( filter_var($endpoint, FILTER_VALIDATE_URL) === false ) {
+            throw new InvalidUriException($endpoint);
         }
 
         $new = clone $this;
-        $new->baseUri = $uri;
+        $new->endpoint = $endpoint;
 
         return $new;
-    } // withBaseUri
+    } // withEndpoint()
 
     /**
      * Adds a prefix that will be prepended to all queries made by this client.
@@ -62,16 +62,16 @@ class SparqlClient
      * copy of this client with the prefix added, leaving the original
      * unmodified.
      *
-     * @param string $name The name of the schema.
-     * @param string $schema The URI of the schema.
+     * @param string $name The name of the namespace.
+     * @param string $namespace The URI of the namespace.
      *
      * @return SparqlClient The clone of this client with the prefix added.
      */
 
-    public function withPrefix($name, $schema)
+    public function withPrefix($name, $namespace)
     {
         $new = clone $this;
-        $new->prefixes[] = 'PREFIX ' . $name . ': <' . $schema . '>';
+        $new->prefixes[] = "PREFIX {$name}: <{$namespace}>";
 
         return $new;
     } // withPrefix()
@@ -87,33 +87,22 @@ class SparqlClient
 
     public function query($query)
     {
-        $prefixes = implode(' ', $this->prefixes);
-        $minified = trim(preg_replace('/\s+/', ' ', $prefixes . $query));
-        $response = $this->client->request('POST', $this->baseUri . 'query', [
-            'form_params' => [
-                'query' => $minified,
-                'output' => 'json'
+        $processed = $this->process($query);
+        $response = $this->client->request('GET', $this->endpoint, [
+            'query' => [
+                'query' => $processed,
+                'format' => 'json'
             ]
         ]);
 
         return json_decode($response->getBody(), true);
     } // query()
 
-    /**
-     * Updates the SPARQL endpoint with a INSERT, DELETE, LOAD or CLEAR update.
-     *
-     * @param string $update The update to execute.
-     */
-
-    public function update($update)
+    private function process($query)
     {
         $prefixes = implode(' ', $this->prefixes);
-        $minified = trim(preg_replace('/\s+/', ' ', $prefixes . $update));
-        $this->client->request('POST', $this->baseUri . 'update', [
-            'form_params' => [
-                'update' => $minified,
-                'output' => 'json'
-            ]
-        ]);
-    } // update()
+        $minified = trim(preg_replace('/\s+/', ' ', $prefixes . $query));
+
+        return $minified;
+    } // process()
 } // class SparqlClient
