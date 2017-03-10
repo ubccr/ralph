@@ -2,6 +2,8 @@
     "name": "ubccr/sparql-client",
     "description": "A simple SPARQL client built on top of Guzzle.",
     "type": "library",
+    "keywords": ["sparql","rdf"],
+    "homepage": "https://github.com/ubccr/sparql-client",
     "license": "LGPLv3",
     "authors": [
         {
