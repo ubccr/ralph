@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<ruleset name="CCR">
+    <description>The coding standard for CCR projects.</description>
+
+    <file>./src</file>
+    <file>./tests/unit</file>
+
+    <rule ref="PSR2">
+        <exclude name="PSR1.Classes.ClassDeclaration.MissingNamespace"/>
+        <exclude name="PSR2.Methods.MethodDeclaration.Underscore"/>
+    </rule>
+
+    <rule ref="PSR2.ControlStructures.ControlStructureSpacing">
+        <properties>
+            <property name="requiredSpacesAfterOpen" value="1"/>
+            <property name="requiredSpacesBeforeClose" value="1"/>
+        </properties>
+    </rule>
+
+    <rule ref="Squiz.ControlStructures.ForEachLoopDeclaration">
+        <properties>
+            <property name="requiredSpacesAfterOpen" value="1"/>
+            <property name="requiredSpacesBeforeClose" value="1"/>
+        </properties>
+    </rule>
+</ruleset>

@@ -1,0 +1,11 @@
+# Composer files
+composer.lock
+vendor/*
+
+# Codeception files
+tests/_support/_generated/*
+tests/_output/*
+
+# macOS hidden files
+.DS_Store
+._*
