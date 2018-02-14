@@ -4,7 +4,7 @@
     "type": "library",
     "keywords": ["sparql","rdf"],
     "homepage": "https://github.com/ubccr/ralph",
-    "license": "LGPLv3",
+    "license": "LGPL-3.0-only",
     "authors": [
         {
             "name": "Center for Computational Research, the University at Buffalo",
