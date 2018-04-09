@@ -1,7 +1,7 @@
 <?php
 namespace CCR\Ralph;
 
-use IteratorAggregate, JsonSerializable;
+use InvalidArgumentException, IteratorAggregate, JsonSerializable;
 use function json_decode;
 
 /**
@@ -15,7 +15,9 @@ class ResultSet implements IteratorAggregate, JsonSerializable
 
     public function __construct(string $results)
     {
-        $this->results = json_decode($results, true);
+        if ( ($this->results = json_decode($results, true)) === null ) {
+            throw new InvalidArgumentException('Failed to unserialize JSON result set string.');
+        }
     } // __construct()
 
     /**
@@ -24,9 +26,9 @@ class ResultSet implements IteratorAggregate, JsonSerializable
      * @return array The variables as an array.
      */
 
-    public function getVariables(): array
+    public function getVariables(): ?array
     {
-        return $this->results['head']['vars'];
+        return $this->results['head']['vars'] ?? null;
     } // getVariables()
 
     /**
@@ -35,9 +37,9 @@ class ResultSet implements IteratorAggregate, JsonSerializable
      * @return bool Whether the results are distinct or not.
      */
 
-    public function isDistinct(): bool
+    public function isDistinct(): ?bool
     {
-        return $this->results['results']['distinct'];
+        return $this->results['results']['distinct'] ?? null;
     } // isDistinct()
 
     /**
@@ -46,9 +48,9 @@ class ResultSet implements IteratorAggregate, JsonSerializable
      * @return bool Whether the results are ordered or not.
      */
 
-    public function isOrdered(): bool
+    public function isOrdered(): ?bool
     {
-        return $this->results['results']['ordered'];
+        return $this->results['results']['ordered'] ?? null;
     } // isOrdered()
 
     /**
@@ -57,9 +59,9 @@ class ResultSet implements IteratorAggregate, JsonSerializable
      * @return array The full reset set.
      */
 
-    public function toArray(): array
+    public function toArray(): ?array
     {
-        return $this->results['results']['bindings'];
+        return $this->results['results']['bindings'] ?? null;
     } // toArray()
 
     public function getIterator(): array

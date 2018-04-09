@@ -1,9 +1,10 @@
 <?php
 namespace CCR\Ralph;
 
+use InvalidArgumentException;
 use GuzzleHttp\ClientInterface;
 use CCR\Ralph\Exception\InvalidUriException;
-use function array_reduce, filter_var, preg_replace, sprintf, trim;
+use function array_reduce, filter_var, preg_match, preg_replace, sprintf, trim;
 
 /**
  * A client for connecting to and querying a SPARQL endpoint.
@@ -60,7 +61,7 @@ class Client
 
     public function withPrefix(string $namespace, string $uri): self
     {
-        $this->validate($uri);
+        $this->validate($uri, $namespace);
         $this->prefixes[] = [$namespace, $uri];
 
         return $this;
@@ -88,8 +89,12 @@ class Client
         return new ResultSet($response->getBody());
     } // query()
 
-    private function validate(string $uri): void
+    private function validate(string $uri, string $namespace = null): void
     {
+        if ( $namespace !== null && preg_match('^[a-z]+$', $namespace) === false ) {
+            throw new InvalidArgumentException('Namespace can only contain lowercase characters.');
+        }
+
         if ( filter_var($uri, FILTER_VALIDATE_URL) === false ) {
             throw new InvalidUriException($uri);
         }
