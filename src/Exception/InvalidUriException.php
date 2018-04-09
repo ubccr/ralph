@@ -1,12 +1,12 @@
 <?php
-namespace CCR\Sparql\Exception;
+namespace CCR\Ralph\Exception;
 
-use RuntimeException;
+use InvalidArgumentException;
 
 /**
- * Runtime exception for if URI validation fails.
+ * Exception thrown on URI validation failure.
  */
 
-class InvalidUriException extends RuntimeException
+class InvalidUriException extends InvalidArgumentException
 {
-}
+} // class InvalidUriException

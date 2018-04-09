@@ -1,33 +1,31 @@
 help:
 	@ echo "Usage: make [target]"
 	@ echo "Targets:"
-	@ echo "  all               Clean, build, verify, test and sniff the code."
-	@ echo "                    This target should succeed prior to opening a"
-	@ echo "                    pull request."
-	@ echo "  build             Builds the project."
-	@ echo "  clean             Clean all artifacts managed by make."
-	@ echo "  lint              Run the PHP linter on all .php files."
-	@ echo "  phpcs             Run PHP_CodeSniffer."
-	@ echo "  test              Run unit tests."
+	@ echo "  analyze Run the PHPStan static analysis tool on the codebase."
+	@ echo "  build   Builds the project for deployment."
+	@ echo "  clean   Clean all artifacts managed by make."
+	@ echo "  lint    Run the PHP CodeSniffer tool on the codebase and attempts"
+	@ echo "          to fix any errors found with the PHP Code Beautifier and"
+	@ echo "          Fixer tool."
+	@ echo "  test    Run PHPUnit tests."
 
-all: clean build lint test phpcs
+analyze: vendor
+	php ./vendor/bin/phpstan analyse -l 7 src
+	php ./vendor/bin/phpstan analyze -l 7 tests
 
-build:
-	composer install -o --no-suggest
+build: vendor
 
 clean:
 	rm -rf ./vendor
 	rm -f ./composer.lock
 
-lint:
-	! find . -type f -name "*.php" \
-		| grep -v "^./vendor" \
-		| xargs -I {} php -l '{}' \
-		| grep -v "No syntax errors detected"
-	@ echo "No syntax errors detected."
+lint: vendor
+	php ./vendor/bin/phpcbf | true
+	php ./vendor/bin/phpcs
 
-phpcs: build
-	./vendor/bin/phpcs
+test: vendor
+	php ./vendor/bin/phpunit tests
 
-test: build
-	./vendor/bin/codecept run unit --fail-fast
+vendor: composer.json $(wildcard composer.lock)
+	composer validate
+	composer install --no-suggest
